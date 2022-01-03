@@ -1,28 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace BeltTensionerTest
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : INotifyPropertyChanged
     {
+        #region instances
+        private ObservableCollection<string> _serialMessages;
+        #endregion
+
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = this;
+
+            Init();
+        }
+
+        #region privates
+        private void Init()
+        {
+            SerialMessages = new ObservableCollection<string>
+            {
+                "message 1",
+                "message 2"
+            };
+        }
+        #endregion
+
+        #region properties
+        public ObservableCollection<string> SerialMessages
+        {
+            get => _serialMessages;
+            set
+            {
+                _serialMessages = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion
+
+
+        #region property changed handler
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        #endregion
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            SerialMessages.Add("test");
         }
     }
 }
