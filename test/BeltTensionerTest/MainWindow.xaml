@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BeltTensionerTest"
         xmlns:converter="clr-namespace:BeltTensionerTest.Converter"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         ResizeMode="NoResize"
         Title="Serial Communication Test"
@@ -15,12 +16,41 @@
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0"
+                    Orientation="Horizontal"
+                    Margin="15,0">
+
+            <StackPanel Orientation="Vertical"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,15,15">
+                <Label Content="Offset Left" />
+                <xctk:IntegerUpDown Value="{Binding Lof, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+
+            <StackPanel Orientation="Vertical"
+                        Margin="0,0,15,0">
+                <Label Content="Offset Right" />
+                <xctk:IntegerUpDown Value="{Binding Rof, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+
+            <StackPanel Orientation="Vertical"
+                        Margin="0,0,15,0">
+                <Label Content="Max Tension" />
+                <xctk:IntegerUpDown Value="{Binding TMax, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+
+            <Button Content="Set Offset"
+                    Command="{Binding SetOffsetCommand}"
+                    VerticalAlignment="Center"
+                    Height="25" />
+        </StackPanel>
 
         <StackPanel Grid.Row="1"
                     Orientation="Horizontal">
@@ -30,9 +60,9 @@
                       SelectedItem="{Binding SelectedPort, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       Margin="5,0,15,0" />
             <Button Content="Connect"
-                    Command="{Binding ConnectCommand}"/>
+                    Command="{Binding ConnectCommand}" />
             <Button Content="Close"
-                    Command="{Binding CloseConnectionCommand}" 
+                    Command="{Binding CloseConnectionCommand}"
                     Margin="15,0,0,0" />
         </StackPanel>
         <Label Grid.Row="2"

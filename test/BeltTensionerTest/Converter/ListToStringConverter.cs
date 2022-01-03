@@ -11,8 +11,9 @@ namespace BeltTensionerTest.Converter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return targetType != typeof(string) ? throw new InvalidOperationException("The target must be a String") :
-                value == null ? "" : Join("\r\n", ((ObservableCollection<string>)value).ToArray());
+            if (value is not ObservableCollection<string> collection) return "";
+
+            return collection == null ? "" : Join("\r\n", collection.ToArray());
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -1,12 +1,14 @@
-﻿using System;
-using BeltTensionerTest.Model;
+﻿using BeltTensionerTest.Model;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Runtime.CompilerServices;
-using System.Threading;
+using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Automation;
+using System.Windows.Documents;
 using System.Windows.Input;
 
 namespace BeltTensionerTest.ViewModels
@@ -25,10 +27,15 @@ namespace BeltTensionerTest.ViewModels
 
         private static SerialPort _serialPort;
 
+        private int _lof = 0;
+        private int _rof = 180;
+        private int _tMax = 180;
+
         private ICommand _clearCommand;
         private ICommand _refreshCommand;
         private ICommand _connectCommand;
         private ICommand _closeConnectionCommand;
+        private ICommand _setOffsetCommand;
         #endregion
 
         #region ctor
@@ -45,8 +52,6 @@ namespace BeltTensionerTest.ViewModels
         #endregion
 
         #region privates
-        private void AddElement() { }
-
         private void ClearElements() => Serial.ClearMessages();
 
         private void GetAvailablePorts() =>
@@ -95,6 +100,41 @@ namespace BeltTensionerTest.ViewModels
                 var msg = ex.Message;
             }
         }
+
+        private void SetOffset()
+        {
+            try
+            {
+                if (!_serialPort.IsOpen) return;
+
+                Serial.ClearMessages();
+
+                var step = new byte[]
+                {
+                    (byte)(0x80 | ((0x80 & Lof) >> 1)),
+                    (byte)(0x7F & Lof),
+                    (byte)(0x81 | ((0x81 & Rof) >> 1)),
+                    (byte)(0x7F & Rof),
+                    (byte)(0x84 | ((0x84 & TMax) >> 1)),
+                    (byte)(0x7F & TMax),
+                };
+
+                var chars = new List<char>();
+
+                foreach (var item in step)
+                {
+                    chars.Add((char)item);
+                }
+
+                var values = new string(chars.ToArray());
+
+                _serialPort.Write(step, 0, step.Length);
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+            }
+        }
         #endregion
 
         #region static
@@ -132,6 +172,36 @@ namespace BeltTensionerTest.ViewModels
             }
         }
 
+        public int Lof
+        {
+            get => _lof;
+            set
+            {
+                _lof = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int Rof
+        {
+            get => _rof;
+            set
+            {
+                _rof = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int TMax
+        {
+            get => _tMax;
+            set
+            {
+                _tMax = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string SelectedPort
         {
             get => _selectedPort;
@@ -146,6 +216,7 @@ namespace BeltTensionerTest.ViewModels
         public ICommand RefreshCommand => _refreshCommand ??= new CommandHandler(GetAvailablePorts, true);
         public ICommand ConnectCommand => _connectCommand ??= new CommandHandler(Connect, true);
         public ICommand CloseConnectionCommand => _closeConnectionCommand ??= new CommandHandler(CloseConnection, true);
+        public ICommand SetOffsetCommand => _setOffsetCommand ??= new CommandHandler(SetOffset, true);
         #endregion
 
         #region property changed
