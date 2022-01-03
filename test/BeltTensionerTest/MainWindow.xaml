@@ -7,11 +7,11 @@
         xmlns:converter="clr-namespace:BeltTensionerTest.Converter"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="Serial Communication Test" 
+        Title="Serial Communication Test"
         x:Name="Window"
         Height="450" Width="800">
     <Window.Resources>
-        <converter:ListToStringConverter x:Key="ListToStringConverter"/>
+        <converter:ListToStringConverter x:Key="ListToStringConverter" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -22,27 +22,41 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal">
+            <Button Content="Refresh" Command="{Binding RefreshCommand}"
+                    Margin="15,0,0,0" />
+            <ComboBox ItemsSource="{Binding AvailablePorts}"
+                      SelectedItem="{Binding SelectedPort, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      Margin="5,0,15,0" />
+            <Button Content="Connect"
+                    Command="{Binding ConnectCommand}"/>
+            <Button Content="Close"
+                    Command="{Binding CloseConnectionCommand}" 
+                    Margin="15,0,0,0" />
+        </StackPanel>
         <Label Grid.Row="2"
                Content="Serial Read"
-               Margin="10,0"/>
+               Margin="10,0" />
 
         <ScrollViewer Grid.Row="3"
                       Margin="15, 0, 15, 5"
                       Background="Black">
-            <TextBlock Text="{Binding SerialMessages, 
+            <TextBlock
+                Text="{Binding Serial.Messages, 
                 Converter={StaticResource ListToStringConverter}, 
                 UpdateSourceTrigger=PropertyChanged}"
-                       Margin="5"
-                       Foreground="GreenYellow"/>
+                Margin="5"
+                Foreground="GreenYellow" />
         </ScrollViewer>
 
         <StackPanel Grid.Row="4"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
                     Margin="15,0,32,15">
-            <Button Content="Clear" 
+            <Button Content="Clear"
                     Width="50"
-                    Click="ButtonBase_OnClick"/>
+                    Command="{Binding ClearCommand}" />
         </StackPanel>
     </Grid>
 </Window>
