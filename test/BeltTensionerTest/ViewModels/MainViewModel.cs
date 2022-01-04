@@ -5,7 +5,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO.Ports;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace BeltTensionerTest.ViewModels
@@ -37,6 +39,8 @@ namespace BeltTensionerTest.ViewModels
         private ICommand _closeConnectionCommand;
         private ICommand _setOffsetCommand;
         private ICommand _setForceCommand;
+        private ICommand _setDefaultCommand;
+        private ICommand _setMaxForceCommand;
         #endregion
 
         #region ctor
@@ -70,11 +74,19 @@ namespace BeltTensionerTest.ViewModels
 
             _serialPort.PortName = SelectedPort;
             _serialPort.BaudRate = 115200;
+            //_serialPort.BaudRate = 256000;
 
             _serialPort.ReadTimeout = 500;
             _serialPort.WriteTimeout = 500;
 
-            _serialPort.Open();
+            try
+            {
+                _serialPort.Open();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Access Denied");
+            }
 
             ClearElements();
 
@@ -112,11 +124,13 @@ namespace BeltTensionerTest.ViewModels
 
                 var step = new byte[]
                 {
-                    (byte)(0x80 | ((0x80 & Lof) >> 1)),
+                    (byte)(0x40 | ((0xE0 & Lof) >> 2)),
                     (byte)(0x7F & Lof),
-                    (byte)(0x81 | ((0x81 & Rof) >> 1)),
+
+                    (byte)(0x41 | ((0xE0 & Rof) >> 2)),
                     (byte)(0x7F & Rof),
-                    (byte)(0x84 | ((0x84 & TMax) >> 1)),
+
+                    (byte)(0x44 | ((0xE0 & TMax) >> 2)),
                     (byte)(0x7F & TMax),
                 };
 
@@ -129,7 +143,7 @@ namespace BeltTensionerTest.ViewModels
 
                 var values = new string(chars.ToArray());
 
-                _serialPort.Write(step, 0, step.Length);
+                Write(step);
             }
             catch (Exception ex)
             {
@@ -147,14 +161,14 @@ namespace BeltTensionerTest.ViewModels
 
                 var step = new byte[]
                 {
-                    (byte)(0x82 | ((0x82 & Fol) >> 1)),
+                    (byte)(0x42 | ((0xE0 & Fol) >> 2)),
                     (byte)(0x7F & Fol),
 
-                    (byte)(0x83 | ((0x83 & For) >> 1)),
+                    (byte)(0x43 | ((0xE0 & For) >> 2)),
                     (byte)(0x7F & For),
                 };
 
-                _serialPort.Write(step, 0, step.Length);
+                Write(step);
             }
             catch (Exception ex)
             {
@@ -162,6 +176,78 @@ namespace BeltTensionerTest.ViewModels
             }
         }
 
+        private void SetDefault()
+        {
+            try
+            {
+                if (!_serialPort.IsOpen) return;
+
+                Serial.ClearMessages();
+
+                var step = new byte[]
+                {
+                    (byte)(0x42 | ((0xE0 & 0) >> 2)),
+                    (byte)(0x7F & 0),
+
+                    (byte)(0x43 | ((0xE0 & 0) >> 2)),
+                    (byte)(0x7F & 0),
+                };
+
+                Write(step);
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+            }
+        }
+
+        private void SetMaxForce()
+        {
+            try
+            {
+                if (!_serialPort.IsOpen) return;
+
+                Serial.ClearMessages();
+
+                var step = new byte[]
+                {
+                    (byte)(0x42 | ((0xE0 & 180) >> 2)),
+                    (byte)(0x7F & 180),
+
+                    (byte)(0x43 | ((0xE0 & 180) >> 2)),
+                    (byte)(0x7F & 180),
+                };
+
+                Write(step);
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+            }
+        }
+
+        private void Write(byte[] msg)
+        {
+            try
+            {
+                if (!_serialPort.IsOpen) return;
+
+                var chars = new List<char>();
+
+                foreach (var item in msg)
+                {
+                    chars.Add((char)item);
+                }
+
+                var outputArray = Encoding.Latin1.GetChars(msg);
+                var values = new string(outputArray);
+
+                //_serialPort.Write(msg, 0, msg.Length);
+
+                _serialPort.Write(values);
+            }
+            catch (TimeoutException) { }
+        }
         #endregion
 
         #region static
@@ -265,6 +351,8 @@ namespace BeltTensionerTest.ViewModels
         public ICommand CloseConnectionCommand => _closeConnectionCommand ??= new CommandHandler(CloseConnection, true);
         public ICommand SetOffsetCommand => _setOffsetCommand ??= new CommandHandler(SetOffset, true);
         public ICommand SetForceCommand => _setForceCommand ??= new CommandHandler(SetForce, true);
+        public ICommand SetDefaultCommand => _setDefaultCommand ??= new CommandHandler(SetDefault, true);
+        public ICommand SetMaxForceCommand => _setMaxForceCommand ??= new CommandHandler(SetMaxForce, true);
         #endregion
 
         #region property changed

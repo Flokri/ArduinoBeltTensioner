@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BeltTensionerTest"
         xmlns:converter="clr-namespace:BeltTensionerTest.Converter"
-        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" xmlns:viewmodels="clr-namespace:BeltTensionerTest.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
         mc:Ignorable="d"
         ResizeMode="NoResize"
         Title="Serial Communication Test"
@@ -72,6 +72,18 @@
 
             <Button Content="Set Force"
                     Command="{Binding SetForceCommand}"
+                    VerticalAlignment="Center"
+                    Height="25"
+                    Margin="35,0"/>
+
+            <Button Content="Set Max Force"
+                    Command="{Binding SetMaxForceCommand}"
+                    VerticalAlignment="Center"
+                    Height="25" 
+                    Margin="10,0"/>
+
+            <Button Content="Set Default"
+                    Command="{Binding SetDefaultCommand}"
                     VerticalAlignment="Center"
                     Height="25" />
         </StackPanel>
