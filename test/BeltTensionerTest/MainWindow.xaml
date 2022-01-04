@@ -19,6 +19,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
@@ -53,6 +54,29 @@
         </StackPanel>
 
         <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    Margin="15,0">
+
+            <StackPanel Orientation="Vertical"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,15,15">
+                <Label Content="Force Left" />
+                <xctk:IntegerUpDown Value="{Binding Fol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+
+            <StackPanel Orientation="Vertical"
+                        Margin="0,0,15,0">
+                <Label Content="Force Right" />
+                <xctk:IntegerUpDown Value="{Binding For, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+
+            <Button Content="Set Force"
+                    Command="{Binding SetForceCommand}"
+                    VerticalAlignment="Center"
+                    Height="25" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="2"
                     Orientation="Horizontal">
             <Button Content="Refresh" Command="{Binding RefreshCommand}"
                     Margin="15,0,0,0" />
@@ -65,11 +89,12 @@
                     Command="{Binding CloseConnectionCommand}"
                     Margin="15,0,0,0" />
         </StackPanel>
-        <Label Grid.Row="2"
+
+        <Label Grid.Row="3"
                Content="Serial Read"
                Margin="10,0" />
 
-        <ScrollViewer Grid.Row="3"
+        <ScrollViewer Grid.Row="4"
                       Margin="15, 0, 15, 5"
                       Background="Black">
             <TextBlock
@@ -80,7 +105,7 @@
                 Foreground="GreenYellow" />
         </ScrollViewer>
 
-        <StackPanel Grid.Row="4"
+        <StackPanel Grid.Row="5"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
                     Margin="15,0,32,15">

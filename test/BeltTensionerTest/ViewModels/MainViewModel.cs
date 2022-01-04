@@ -3,12 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO.Ports;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Documents;
 using System.Windows.Input;
 
 namespace BeltTensionerTest.ViewModels
@@ -31,11 +28,15 @@ namespace BeltTensionerTest.ViewModels
         private int _rof = 180;
         private int _tMax = 180;
 
+        private int _fol = 0;
+        private int _for = 0;
+
         private ICommand _clearCommand;
         private ICommand _refreshCommand;
         private ICommand _connectCommand;
         private ICommand _closeConnectionCommand;
         private ICommand _setOffsetCommand;
+        private ICommand _setForceCommand;
         #endregion
 
         #region ctor
@@ -135,6 +136,32 @@ namespace BeltTensionerTest.ViewModels
                 var msg = ex.Message;
             }
         }
+
+        private void SetForce()
+        {
+            try
+            {
+                if (!_serialPort.IsOpen) return;
+
+                Serial.ClearMessages();
+
+                var step = new byte[]
+                {
+                    (byte)(0x82 | ((0x82 & Fol) >> 1)),
+                    (byte)(0x7F & Fol),
+
+                    (byte)(0x83 | ((0x83 & For) >> 1)),
+                    (byte)(0x7F & For),
+                };
+
+                _serialPort.Write(step, 0, step.Length);
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+            }
+        }
+
         #endregion
 
         #region static
@@ -202,6 +229,26 @@ namespace BeltTensionerTest.ViewModels
             }
         }
 
+        public int Fol
+        {
+            get => _fol;
+            set
+            {
+                _fol = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int For
+        {
+            get => _for;
+            set
+            {
+                _for = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string SelectedPort
         {
             get => _selectedPort;
@@ -217,6 +264,7 @@ namespace BeltTensionerTest.ViewModels
         public ICommand ConnectCommand => _connectCommand ??= new CommandHandler(Connect, true);
         public ICommand CloseConnectionCommand => _closeConnectionCommand ??= new CommandHandler(CloseConnection, true);
         public ICommand SetOffsetCommand => _setOffsetCommand ??= new CommandHandler(SetOffset, true);
+        public ICommand SetForceCommand => _setForceCommand ??= new CommandHandler(SetForce, true);
         #endregion
 
         #region property changed
